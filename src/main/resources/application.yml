@@ -1,0 +1,20 @@
+
+# TimeOut Setting
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 600000
+
+# Web Server Port
+server:
+  port: 11000
+
+# Naver Papago API
+naver:
+  papago:
+    clientId: 'SNh3lOfsJEmGBqbUnHjf'
+    clientSecret: '0RYgWMsd3t'
+
+
