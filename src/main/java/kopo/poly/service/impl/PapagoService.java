@@ -6,10 +6,8 @@ import kopo.poly.service.IPapagoService;
 import kopo.poly.util.CmmUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.net.URLEncoder;
 import java.util.Map;
 
 @Slf4j
@@ -17,12 +15,7 @@ import java.util.Map;
 @Service
 public class PapagoService implements IPapagoService {
 
-    @Value("${naver.papago.clientId}")
-    private String clientId;
-
-    @Value("${naver.papago.clientSecret}")
-    private String clientSecret;
-
+    // OpenFeign 정의된 API 인터페이스 가져오기
     private final INaverAPIService naverAPIService;
 
     @Override
@@ -32,23 +25,9 @@ public class PapagoService implements IPapagoService {
 
         String text = CmmUtil.nvl(pDTO.getText()); // 영작할 문장
 
-        // 호출할 Papago 번역 API 정보 설정
-        String param = "query=" + URLEncoder.encode(text, "UTF-8"); // 언어 감지할 문장
-
         // PapagoAPI 호출하기
         // 결과  예 : {"langCode":"ko"}
         PapagoDTO rDTO = naverAPIService.detectLangs(text);
-
-//        // PapagoAPI 호출하기
-//        String json = NetworkUtil.post(IPapagoService.detectLangsApiURL, this.setNaverInfo(), param);
-//
-//
-//        log.info("json : " + json);
-//
-//
-//        // JSON 구조를 Map 데이터 구조로 변경하기
-//        // 키와 값 구조의 JSON구조로부터 데이터를 쉽게 가져오기 위해 Map 데이터구조로 변경함
-//        PapagoDTO rDTO = new ObjectMapper().readValue(json, PapagoDTO.class);
 
         // 언어 감지를 위한 원문 저장하기
         rDTO.setText(text);
@@ -91,15 +70,11 @@ public class PapagoService implements IPapagoService {
 
         String text = CmmUtil.nvl(pDTO.getText()); // 번역할 문장
 
-        // 한국어를 영어로 번역하기 위한 파라미터 설정
-//        String postParams = "source=" + source + "&target=" + target + "&text=" + URLEncoder.encode(text, "UTF-8");
-
-//        log.info("postParams : " + postParams);
-
         rDTO = naverAPIService.translate(source, target, text);
 
         log.info("rDTO : " + rDTO.getMessage().get("result"));
 
+        // 네이버 결과 데이터 구조는 Map구조에 Map 구조에 Map 구조로 3중 Map구조되어 있음
         Map<String, String> result = (Map<String, String>) rDTO.getMessage().get("result");
 
         String srcLangType = CmmUtil.nvl(result.get("srcLangType"));
@@ -110,6 +85,7 @@ public class PapagoService implements IPapagoService {
         log.info("tarLangType : " + tarLangType);
         log.info("translatedText : " + translatedText);
 
+        // API 호출 결과를 기반으로 HTML에서 사용하기 쉽게 새롭게 데이터 구조 정의하기
         rDTO = new PapagoDTO();
         rDTO.setText(text);
         rDTO.setTranslatedText(translatedText);
