@@ -5,7 +5,7 @@ import feign.RequestLine;
 import kopo.poly.dto.PapagoDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 
-@FeignClient(name = "PapagoAPI", url = "https://openapi.naver.com")
+@FeignClient(name = "NaverAPIService", url = "https://openapi.naver.com")
 public interface INaverAPIService {
 
     @RequestLine("POST /v1/papago/detectLangs")

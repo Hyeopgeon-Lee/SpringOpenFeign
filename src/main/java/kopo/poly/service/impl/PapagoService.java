@@ -42,7 +42,7 @@ public class PapagoService implements IPapagoService {
 
         log.info(this.getClass().getName() + ".translate Start!");
 
-        // 언어 종류 찾기
+        // 언어 종류 찾기, 위에 개발한 public PapagoDTO detectLangs(PapagoDTO pDTO) 호출
         PapagoDTO rDTO = this.detectLangs(pDTO);
 
         // 찾은 언어 종류
