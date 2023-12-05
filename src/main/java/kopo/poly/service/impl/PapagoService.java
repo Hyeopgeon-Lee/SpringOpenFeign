@@ -6,6 +6,7 @@ import kopo.poly.service.IPapagoService;
 import kopo.poly.util.CmmUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -23,7 +24,7 @@ public class PapagoService implements IPapagoService {
 
         log.info(this.getClass().getName() + ".detectLangs Start!");
 
-        String text = CmmUtil.nvl(pDTO.getText()); // 영작할 문장
+        val text = CmmUtil.nvl(pDTO.getText()); // 영작할 문장
 
         // PapagoAPI 호출하기
         // 결과  예 : {"langCode":"ko"}
@@ -50,8 +51,8 @@ public class PapagoService implements IPapagoService {
 
         log.info("langCode : " + langCode);
 
-        String source; // 원문 언어(한국어 : ko / 영어 : en)
-        String target; // 번역할 언어
+        var source = ""; // 원문 언어(한국어 : ko / 영어 : en)
+        var target = ""; // 번역할 언어
 
         if (langCode.equals("ko")) {
             source = "ko";
@@ -66,18 +67,18 @@ public class PapagoService implements IPapagoService {
             throw new Exception("한국어와 영어만 번역됩닌다.");
         }
 
-        String text = CmmUtil.nvl(pDTO.getText()); // 번역할 문장
+        val text = CmmUtil.nvl(pDTO.getText()); // 번역할 문장
 
         rDTO = naverAPIService.translate(source, target, text);
 
         log.info("rDTO : " + rDTO.getMessage().get("result"));
 
         // 네이버 결과 데이터 구조는 Map구조에 Map 구조에 Map 구조로 3중 Map구조되어 있음
-        var result = (Map<String, String>) rDTO.getMessage().get("result");
+        val result = (Map<String, String>) rDTO.getMessage().get("result");
 
-        String srcLangType = CmmUtil.nvl(result.get("srcLangType"));
-        String tarLangType = CmmUtil.nvl(result.get("tarLangType"));
-        String translatedText = CmmUtil.nvl(result.get("translatedText"));
+        val srcLangType = CmmUtil.nvl(result.get("srcLangType"));
+        val tarLangType = CmmUtil.nvl(result.get("tarLangType"));
+        val translatedText = CmmUtil.nvl(result.get("translatedText"));
 
         log.info("srcLangType : " + srcLangType);
         log.info("tarLangType : " + tarLangType);
@@ -86,8 +87,6 @@ public class PapagoService implements IPapagoService {
         // API 호출 결과를 기반으로 HTML에서 사용하기 쉽게 새롭게 데이터 구조 정의하기
         rDTO = PapagoDTO.builder().text(text).translatedText(translatedText)
                 .srcLangType(srcLangType).tarLangType(tarLangType).build();
-
-        result = null;
 
         log.info(this.getClass().getName() + ".translate End!");
 
