@@ -19,7 +19,7 @@ public class PapagoService implements IPapagoService {
     private final INaverAPIService naverAPIService;
 
     @Override
-    public PapagoDTO detectLangs(PapagoDTO pDTO) throws Exception {
+    public PapagoDTO detectLangs(PapagoDTO pDTO) {
 
         log.info(this.getClass().getName() + ".detectLangs Start!");
 
@@ -50,10 +50,8 @@ public class PapagoService implements IPapagoService {
 
         log.info("langCode : " + langCode);
 
-        rDTO = null; // 사용 용도가 끝나서 메모리에서 지우기
-
-        String source = ""; // 원문 언어(한국어 : ko / 영어 : en)
-        String target = ""; // 번역할 언어
+        String source; // 원문 언어(한국어 : ko / 영어 : en)
+        String target; // 번역할 언어
 
         if (langCode.equals("ko")) {
             source = "ko";
@@ -65,7 +63,7 @@ public class PapagoService implements IPapagoService {
 
         } else {
             // 한국어와 영어가 아니면, 에러 발생시키기
-            new Exception("한국어와 영어만 번역됩닌다.");
+            throw new Exception("한국어와 영어만 번역됩닌다.");
         }
 
         String text = CmmUtil.nvl(pDTO.getText()); // 번역할 문장
@@ -75,7 +73,7 @@ public class PapagoService implements IPapagoService {
         log.info("rDTO : " + rDTO.getMessage().get("result"));
 
         // 네이버 결과 데이터 구조는 Map구조에 Map 구조에 Map 구조로 3중 Map구조되어 있음
-        Map<String, String> result = (Map<String, String>) rDTO.getMessage().get("result");
+        var result = (Map<String, String>) rDTO.getMessage().get("result");
 
         String srcLangType = CmmUtil.nvl(result.get("srcLangType"));
         String tarLangType = CmmUtil.nvl(result.get("tarLangType"));
@@ -86,11 +84,8 @@ public class PapagoService implements IPapagoService {
         log.info("translatedText : " + translatedText);
 
         // API 호출 결과를 기반으로 HTML에서 사용하기 쉽게 새롭게 데이터 구조 정의하기
-        rDTO = new PapagoDTO();
-        rDTO.setText(text);
-        rDTO.setTranslatedText(translatedText);
-        rDTO.setScrLangType(srcLangType);
-        rDTO.setTarLangType(tarLangType);
+        rDTO = PapagoDTO.builder().text(text).translatedText(translatedText)
+                .srcLangType(srcLangType).tarLangType(tarLangType).build();
 
         result = null;
 
